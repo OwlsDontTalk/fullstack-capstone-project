@@ -1,28 +1,29 @@
+/*jshint esversion: 9 */
 // db.js
 require('dotenv').config();
-const { MongoClient } = require('mongodb');
+const MongoClient = require('mongodb').MongoClient;
 
-const url = process.env.MONGO_URL;
-const dbName = 'giftdb';
-let clientInstance = null;
+// MongoDB connection URL with authentication options
+let url = `${process.env.MONGO_URL}`;
+
 let dbInstance = null;
+const dbName = "giftdb";
 
 async function connectToDatabase() {
-    if (dbInstance) {
-        return dbInstance;
-    }
+    if (dbInstance){
+        return dbInstance
+    };
 
-    if (!url) {
-        throw new Error('MONGO_URL is not defined in the environment');
-    }
+    const client = new MongoClient(url);      
 
-    if (!clientInstance) {
-        clientInstance = new MongoClient(url);
-        await clientInstance.connect();
-    }
+    // Task 1: Connect to MongoDB
+    // {{insert code}}
 
-    dbInstance = clientInstance.db(dbName);
-    return dbInstance;
+    // Task 2: Connect to database giftDB and store in variable dbInstance
+    //{{insert code}}
+
+    // Task 3: Return database instance
+    // {{insert code}}
 }
 
 module.exports = connectToDatabase;

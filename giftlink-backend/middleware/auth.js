@@ -1,4 +1,4 @@
-/*jshint esversion: 8 */
+/*jshint esversion: 9 */
 const jwt = require('jsonwebtoken');
 
 function authMiddleware(req, res, next) {

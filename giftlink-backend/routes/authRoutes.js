@@ -1,3 +1,4 @@
+/*jshint esversion: 9 */
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
