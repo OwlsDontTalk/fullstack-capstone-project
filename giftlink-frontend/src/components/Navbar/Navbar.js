@@ -26,6 +26,11 @@ export default function Navbar() {
                     <li className="nav-item">
                         <Link className="nav-link" to="/app/search">Search</Link>
                     </li>
+                    {isLoggedIn && (
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/app/profile">Profile</Link>
+                        </li>
+                    )}
                 </ul>
 
                 <ul className="navbar-nav ms-auto">

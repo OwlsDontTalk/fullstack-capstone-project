@@ -39,7 +39,7 @@ function LoginPage() {
 
             const data = await response.json();
             const fullName = `${data.user.firstName} ${data.user.lastName}`.trim();
-            login(data.token, fullName);
+            login(data.token, fullName, data.user.email);
             navigate('/app');
         } catch (err) {
             setError(err.message);
