@@ -1,6 +1,9 @@
 const config = {
-  backendUrl: process.env.REACT_APP_BACKEND_URL,
+  backendUrl: process.env.REACT_APP_BACKEND_URL || 'http://localhost:3060',
 };
 
-console.log(`backendUrl in config.js: ${config.backendUrl}`)
-export {config as urlConfig}
+if (process.env.NODE_ENV !== 'production') {
+  console.log(`backendUrl in config.js: ${config.backendUrl}`);
+}
+
+export { config as urlConfig };

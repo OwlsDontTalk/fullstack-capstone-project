@@ -1,26 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {urlConfig} from '../../config';
+import { urlConfig } from '../../config';
+import { useAppContext } from '../../context/AuthContext';
 
 function MainPage() {
     const [gifts, setGifts] = useState([]);
     const navigate = useNavigate();
+    const { isLoggedIn } = useAppContext();
 
     useEffect(() => {
-        // Task 1: Write async fetch operation
-        // Write your code below this line
+        const fetchGifts = async () => {
+            try {
+                const response = await fetch(`${urlConfig.backendUrl}/api/gifts`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error; ${response.status}`);
+                }
+                const data = await response.json();
+                setGifts(data);
+            } catch (error) {
+                console.log('Fetch error: ' + error.message);
+            }
+        };
+
+        fetchGifts();
     }, []);
 
-    // Task 2: Navigate to details page
     const goToDetailsPage = (productId) => {
-        // Write your code below this line
+        if (!productId) {
+            console.warn('Missing product id for navigation');
+            return;
+        }
 
-      };
+        if (!isLoggedIn) {
+            navigate('/app/login');
+            return;
+        }
 
-    // Task 3: Format timestamp
+        navigate(`/app/product/${productId}`);
+    };
+
     const formatDate = (timestamp) => {
-        // Write your code below this line
-      };
+        if (!timestamp) {
+            return 'Unknown date';
+        }
+
+        const date = new Date(Number(timestamp) * 1000);
+        if (Number.isNaN(date.getTime())) {
+            return 'Invalid date';
+        }
+
+        return date.toLocaleDateString('default', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
 
     const getConditionClass = (condition) => {
         return condition === "New" ? "list-group-item-success" : "list-group-item-warning";
@@ -29,33 +63,40 @@ function MainPage() {
     return (
         <div className="container mt-5">
             <div className="row">
-                {gifts.map((gift) => (
-                    <div key={gift.id} className="col-md-4 mb-4">
-                        <div className="card product-card">
+                {gifts.map((gift) => {
+                    const productId = gift.id || gift._id;
 
-                            {/* // Task 4: Display gift image or placeholder */}
-                            {/* // Write your code below this line */}
+                    return (
+                        <div key={productId} className="col-md-4 mb-4">
+                            <div className="card product-card">
+                                <div className="image-placeholder">
+                                    {gift.image ? (
+                                        <img src={gift.image} alt={gift.name} className="card-img-top" />
+                                    ) : (
+                                        <div className="no-image-available">No Image Available</div>
+                                    )}
+                                </div>
 
-                            <div className="card-body">
+                                <div className="card-body">
+                                    <h5 className="card-title">{gift.name}</h5>
 
-                                {/* // Task 5: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
+                                    <p className={`card-text ${getConditionClass(gift.condition)}`}>
+                                    {gift.condition}
+                                    </p>
 
-                                <p className={`card-text ${getConditionClass(gift.condition)}`}>
-                                {gift.condition}
-                                </p>
-
-                                {/* // Task 6: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
+                                    <p className="card-text text-muted">
+                                        {formatDate(gift.date_added)}
+                                    </p>
                                 
 
-                                <button onClick={() => goToDetailsPage(gift.id)} className="btn btn-primary">
-                                    View Details
-                                </button>
+                                    <button onClick={() => goToDetailsPage(productId)} className="btn btn-primary">
+                                        View Details
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

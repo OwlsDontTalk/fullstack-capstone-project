@@ -1,6 +1,7 @@
 const express = require('express');
 const { ObjectId } = require('mongodb');
 const connectToDatabase = require('../models/db');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -17,17 +18,21 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const collection = db.collection('gifts');
         const { id } = req.params;
 
-        if (!ObjectId.isValid(id)) {
-            return res.status(400).send('Invalid gift id');
+        let gift = null;
+
+        if (ObjectId.isValid(id)) {
+            gift = await collection.findOne({ _id: new ObjectId(id) });
         }
 
-        const gift = await collection.findOne({ _id: new ObjectId(id) });
+        if (!gift) {
+            gift = await collection.findOne({ id });
+        }
 
         if (!gift) {
             return res.status(404).send('Gift not found');
@@ -40,11 +45,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware, async (req, res, next) => {
     try {
         const db = await connectToDatabase();
         const collection = db.collection('gifts');
-        const result = await collection.insertOne(req.body);
+        const result = await collection.insertOne({ ...req.body, createdBy: req.user.userId });
 
         res.status(201).json({ _id: result.insertedId, ...req.body });
     } catch (e) {

@@ -1,26 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { urlConfig } from '../../config';
+import { useAppContext } from '../../context/AuthContext';
 import './DetailsPage.css';
 
 function DetailsPage() {
     const navigate = useNavigate();
     const { productId } = useParams();
+    const { token, isLoggedIn } = useAppContext();
     const [gift, setGift] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
 	useEffect(() => {
-        const authenticationToken = sessionStorage.getItem('auth-token');
-        if (!authenticationToken) {
-			// Task 1: Check for authentication and redirect
-            {{insert code here}}
+        if (!isLoggedIn || !token) {
+            navigate('/app/login');
+            return;
         }
 
-        // get the gift to be rendered on the details page
         const fetchGift = async () => {
             try {
-				// Task 2: Fetch gift details
-                const response ={{insert code here}}
+                const response = await fetch(`${urlConfig.backendUrl}/api/gifts/${productId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -35,18 +39,32 @@ function DetailsPage() {
 
         fetchGift();
 
-		// Task 3: Scroll to top on component mount
-		{{ insert code here }}
+		window.scrollTo(0, 0);
 
-    }, [productId]);
+    }, [productId, token, isLoggedIn, navigate]);
 
 
     const handleBackClick = () => {
-		// Task 4: Handle back click
-		{{ insert code here }}
+		navigate(-1);
 	};
 
-	//The comments have been hardcoded for this project.
+	const formatDate = (timestamp) => {
+        if (!timestamp) {
+            return 'Unknown date';
+        }
+
+        const date = new Date(Number(timestamp) * 1000);
+        if (Number.isNaN(date.getTime())) {
+            return 'Invalid date';
+        }
+
+        return date.toLocaleDateString('default', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    };
+
     const comments = [
         {
             author: "John Doe",
@@ -85,34 +103,21 @@ return (
                 <div className="card-body">
                     <div className="image-placeholder-large">
                         {gift.image ? (
-			// Task 5: Display gift image
-			/*insert code here*/
+			<img src={gift.image} alt={gift.name} className="img-fluid" />
                         ) : (
                             <div className="no-image-available-large">No Image Available</div>
                         )}
                     </div>
-                    // Task 6: Display gift details
-                    	<p><strong>Category:</strong> 
-				{/* insert code here  */}
-			</p>
-                    	<p><strong>Condition:</strong> 
-				{/* insert code here  */}
-                    	</p>
-                    	<p><strong>Date Added:</strong> 
-				{/* insert code here  */}
-                        </p>
-                    	<p><strong>Age (Years):</strong> 
-				{/* insert code here  */}
-                    	</p>
-                    	<p><strong>Description:</strong> 
-				{/* insert code here  */}
-                    	</p>
+                    <p><strong>Category:</strong> {gift.category || 'Unknown'}</p>
+                    <p><strong>Condition:</strong> {gift.condition || 'Unknown'}</p>
+                    <p><strong>Date Added:</strong> {formatDate(gift.date_added)}</p>
+                    <p><strong>Age (Years):</strong> {gift.age_years ?? 'Unknown'}</p>
+                    <p><strong>Description:</strong> {gift.description || 'No description provided.'}</p>
                 </div>
             </div>
             <div className="comments-section mt-4">
                 <h3 className="mb-3">Comments</h3>
-				// Task 7: Render comments section by using the map function to go through all the comments
-				{{ insert code here }} => (
+                {comments.map((comment, index) => (
                     <div key={index} className="card mb-3">
                         <div className="card-body">
                             <p className="comment-author"><strong>{comment.author}:</strong></p>
